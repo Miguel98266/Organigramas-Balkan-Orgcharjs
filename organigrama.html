@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://fonts.googleapis.com/css?family=Gochi+Hand" rel="stylesheet">
+
+  
+</head>
+<body>
+    
+
+<div id="tree"></div>
+</body>
+</html>
+<script src="https://balkangraph.com/js/latest/OrgChart.js"></script>
+<style>
+    html, body {
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: Helvetica;
+}
+
+#tree {
+    width: 100%;
+    height: 100%;
+}
+
+</style>
+<script>
+    window.onload = function () {
+            OrgChart.templates.group.link = '<path stroke-linejoin="round" stroke="#aeaeae" stroke-width="1px" fill="none" d="M{xa},{ya} {xb},{yb} {xc},{yc} L{xd},{yd}" />';
+            OrgChart.templates.group.nodeMenuButton = '';
+            OrgChart.templates.group.min = Object.assign({}, OrgChart.templates.group);
+            OrgChart.templates.group.min.description = '<text width="230" text-overflow="multiline" style="font-size: 14px;" fill="#aeaeae" x="125" y="100" text-anchor="middle">{val}</text>';
+
+
+            var chart = new OrgChart(document.getElementById("tree"), {
+                template: "olivia",
+                enableDragDrop: true,
+                nodeMouseClick: OrgChart.action.edit,
+                nodeBinding: {
+                    description: "description",
+                    field_0: "name",
+                    field_1: "title",
+
+                },
+                tags: {
+                    "group": {
+                        template: "group",
+                    },
+                    "devs-group": {
+                        subTreeConfig: {
+                            columns: 2
+                        }
+                    },
+                    "sales-group": {
+                        subTreeConfig: {
+                            columns: 1
+                        }
+                    },
+                    "hrs-group": {
+                        min: true,
+                        subTreeConfig: {
+                            columns: 2
+                        }
+                    },
+                }
+            });
+
+            chart.on('drop', function (sender, draggedNodeId, droppedNodeId) {
+                var draggedNode = sender.getNode(draggedNodeId);
+                var droppedNode = sender.getNode(droppedNodeId);
+
+                if (droppedNode.tags.indexOf("group") != -1 && draggedNode.tags.indexOf("group") == -1) {
+                    var draggedNodeData = sender.get(draggedNode.id);
+                    draggedNodeData.pid = null;
+                    draggedNodeData.stpid = droppedNode.id;
+                    sender.updateNode(draggedNodeData);
+                    return false;
+                }
+            });
+
+            chart.on('click', function (sender, args) {
+                if (args.node.tags.indexOf("group") != -1) {
+                    if (args.node.min) {
+                        sender.maximize(args.node.id);
+                    }
+                    else {
+                        sender.minimize(args.node.id);
+                    }
+                }
+                return false;
+            });
+
+
+            chart.load([
+                { id: "directors", name: "Directors", tags: ["directors-group", "group"], description: "Top Management" },
+                { id: "devs", name: "Dev Team", pid: 4, tags: ["devs-group", "group"], description: "Research and Development" },
+                { id: "sales", name: "Sales Team", pid: 9, tags: ["sales-group", "group"], description: "Sales and Marketing" },
+                { id: 1, stpid: "directors", name: "Billy Moore", title: "CEO"},
+                { id: 2, stpid: "directors", name: "Marley Wilson", title: "Director"},
+                { id: 3, stpid: "directors", name: "Bennie Shelton", title: "Shareholder" },
+                { id: 4, pid: "directors", name: "Billie Rose", title: "Dev Team Lead" },
+                { id: 20, pid: "directors", name: "HR Team", tags: ["hrs-group", "group"], description: "Human Resource | London" },
+                { id: 5, stpid: 20, name: "Glenn Bell", title: "HR",  },
+                { id: 6, stpid: 20, name: "Marcel Brooks", title: "HR"  },
+                { id: 7, stpid: 20, name: "Maxwell Bates", title: "HR"  },
+                { id: 8, stpid: 20, name: "Asher Watts", title: "Junior HR"  },
+                { id: 9, pid: "directors", name: "Skye Terrell", title: "Manager"  },
+                { id: 10, stpid: "devs", name: "Jordan Harris", title: "JS Developer" },
+                { id: 11, stpid: "devs", name: "Will Woods", title: "JS Developer" },
+                { id: 12, stpid: "devs", name: "Skylar Parrish", title: "node.js Developer" },
+                { id: 13, stpid: "devs", name: "Ashton Koch", title: "C# Developer" },
+                { id: 14, stpid: "sales", name: "Bret Fraser", title: "Sales"  },
+                { id: 15, stpid: "sales", name: "Steff Haley", title: "Sales"  }
+            ]);
+        };
+
+</script>
